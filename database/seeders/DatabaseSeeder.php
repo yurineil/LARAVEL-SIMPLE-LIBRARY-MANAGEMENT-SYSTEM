@@ -4,8 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\Author;
 use App\Models\Book;
+use App\Models\Borrow;
+use App\Models\BorrowBook;
 use App\Models\Student;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -51,6 +54,25 @@ class DatabaseSeeder extends Seeder
             $book->authors()->syncWithoutDetaching(
                 array_map(fn ($i) => $authors[$i]->id, $authorIndexes)
             );
+        }
+
+        // One student user with a borrow 5 days overdue (so they have a fine)
+        $fineUser = User::updateOrCreate(
+            ['email' => 'fineuser@library.com'],
+            ['name' => 'Fine Demo User', 'password' => Hash::make('password'), 'role' => 'student', 'approved_at' => now()]
+        );
+        $fineStudent = Student::updateOrCreate(
+            ['email' => $fineUser->email],
+            ['name' => $fineUser->name, 'student_id' => 'U' . $fineUser->id]
+        );
+        $firstBook = Book::first();
+        if ($firstBook) {
+            $borrow = Borrow::create([
+                'student_id' => $fineStudent->id,
+                'borrow_date' => Carbon::today()->subDays(10),
+                'due_date' => Carbon::today()->subDays(5),
+            ]);
+            $borrow->borrowItems()->create(['book_id' => $firstBook->id]);
         }
     }
 

@@ -17,24 +17,30 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $user = Auth::user();
+        $email = strtolower(trim($request->email));
+        $password = trim($request->password);
+
+        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+
+        if ($user && Hash::check($password, $user->password)) {
             if ($user->isAdmin() && !$user->isApproved()) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
                 return back()->withErrors(['email' => 'Your admin account is pending approval.']);
             }
+            Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
             if ($user->isAdmin()) {
                 return redirect()->intended(route('dashboard'));
             }
             return redirect()->intended(route('student.home'));
+        }
+
+        if ($user) {
+            return back()->withErrors(['password' => 'Invalid password.'])->onlyInput('email');
         }
 
         return back()->withErrors([
@@ -57,10 +63,13 @@ class AuthController extends Controller
         ]);
 
         $role = $validated['role'];
+        $email = strtolower(trim($validated['email']));
+        $password = trim($validated['password']);
+
         $user = User::create([
             'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'email' => $email,
+            'password' => Hash::make($password),
             'role' => $role,
             'approved_at' => $role === 'student' ? now() : null,
         ]);

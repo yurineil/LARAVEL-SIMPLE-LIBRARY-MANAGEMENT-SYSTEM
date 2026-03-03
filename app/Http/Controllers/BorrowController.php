@@ -20,7 +20,8 @@ class BorrowController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('borrows.index', compact('borrows'));
+        $students = Student::orderBy('name')->get();
+        return view('borrows.index', compact('borrows', 'students'));
     }
 
     public function create()

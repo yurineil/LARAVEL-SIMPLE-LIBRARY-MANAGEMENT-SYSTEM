@@ -18,7 +18,7 @@
         <label class="form-label mb-0 small">Filter by student</label>
         <select name="student_id" class="form-select form-select-sm" style="width: 220px;">
             <option value="">All students</option>
-            @foreach(\App\Models\Student::orderBy('name')->get() as $s)
+            @foreach($students as $s)
                 <option value="{{ $s->id }}" {{ request('student_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
             @endforeach
         </select>
