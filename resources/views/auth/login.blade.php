@@ -49,5 +49,8 @@
                 Don't have an account? <a href="{{ route('register') }}" class="fw-semibold text-decoration-none">Register</a>
             </p>
         @endif
+        <p class="text-center text-muted small mb-0 mt-2">
+            Student? No login needed — <a href="{{ route('guest.student.portal') }}" class="fw-semibold text-decoration-none">Enter Student ID</a>
+        </p>
     </form>
 </x-guest-layout>

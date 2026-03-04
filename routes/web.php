@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuestStudentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentBorrowController;
 use App\Http\Controllers\StudentController;
@@ -15,6 +16,16 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
+
+// Guest student (no login): enter Student ID to borrow and return
+Route::get('/guest/student', [GuestStudentController::class, 'portal'])->name('guest.student.portal');
+Route::post('/guest/student', [GuestStudentController::class, 'identify'])->name('guest.student.identify');
+Route::post('/guest/student/end', [GuestStudentController::class, 'endSession'])->name('guest.student.end');
+Route::get('/guest/borrows', [GuestStudentController::class, 'borrows'])->name('guest.borrows');
+Route::get('/guest/borrow', [GuestStudentController::class, 'borrowCreate'])->name('guest.borrow.create');
+Route::post('/guest/borrow', [GuestStudentController::class, 'borrowStore'])->name('guest.borrow.store');
+Route::get('/guest/borrows/{borrow}/return', [GuestStudentController::class, 'returnForm'])->name('guest.return.form');
+Route::post('/guest/return', [GuestStudentController::class, 'processReturn'])->name('guest.return.process');
 
 // Fix admin login when you get "credentials do not match" (only when APP_DEBUG=true)
 Route::get('/fix-admin-login', function () {
@@ -44,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Student home and borrow (students can borrow books and see their borrows)
-    Route::get('/student', fn () => view('student.home'))->name('student.home');
+    Route::get('/student', [StudentBorrowController::class, 'home'])->name('student.home');
     Route::get('/student/books', [StudentBorrowController::class, 'index'])->name('student.books');
     Route::get('/student/borrow', [StudentBorrowController::class, 'create'])->name('student.borrow.create');
     Route::post('/student/borrow', [StudentBorrowController::class, 'store'])->name('student.borrow.store');

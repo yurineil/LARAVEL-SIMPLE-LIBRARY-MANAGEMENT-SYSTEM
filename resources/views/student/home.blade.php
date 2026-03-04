@@ -6,6 +6,7 @@
 <div class="page-header">
     <h2><i class="bi bi-person-badge me-2"></i>Student</h2>
     <p class="text-muted mb-0">You are logged in as a student. You can borrow books and view your borrows here.</p>
+    <p class="mb-0 mt-2"><strong>Your Student ID:</strong> <code class="bg-light px-2 py-1 rounded">{{ $student->student_id }}</code> <span class="text-muted small">(use this on the no-login student portal if you prefer not to log in)</span></p>
 </div>
 <div class="row g-4">
     <div class="col-md-6 col-lg-4">

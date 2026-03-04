@@ -33,6 +33,16 @@ class StudentBorrowController extends Controller
         return null;
     }
 
+    /** Student home: show dashboard and Student ID. */
+    public function home()
+    {
+        if ($r = $this->ensureStudent()) {
+            return $r;
+        }
+        $student = $this->getStudentForCurrentUser();
+        return view('student.home', compact('student'));
+    }
+
     public function index(Request $request)
     {
         if ($r = $this->ensureStudent()) {
